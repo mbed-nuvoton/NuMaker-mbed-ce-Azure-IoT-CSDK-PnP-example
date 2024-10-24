@@ -1,0 +1,5 @@
+{
+    "NUMAKER_IOT_M487_DEV": {
+        "inherits": ["NUMAKER_IOT_M487"]
+    }
+}

@@ -1,0 +1,84 @@
+{
+    "config": {
+        "use_dps": {
+            "help": "Enable connecting with IoT Hub via DPS",
+            "options": [null, true],
+            "value": true
+        },
+        "iothub_client_trace": {
+            "help": "Enable IoT Hub Client tracing",
+            "value": false
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "platform.minimal-printf-enable-floating-point": true,
+            "platform.stdio-convert-newlines": true,
+            "platform.stdio-baud-rate": 115200,
+            "lwip.ipv4-enabled": true,
+            "lwip.ethernet-enabled": false,
+            "mbed-trace.enable": false,
+            "cellular.debug-at": false,
+            "nsapi.default-cellular-plmn": 0,
+            "nsapi.default-cellular-sim-pin": 0,
+            "nsapi.default-cellular-apn": 0,
+            "nsapi.default-cellular-username": 0,
+            "nsapi.default-cellular-password": 0
+        },
+        "NUMAKER_PFM_M487": {
+            "target.network-default-interface-type" : "CELLULAR",
+            "target.components_add"                 : ["GENERIC_AT3GPP"],
+            "GENERIC_AT3GPP.provide-default"        : true,
+            "GENERIC_AT3GPP.tx"                     : "D1",
+            "GENERIC_AT3GPP.rx"                     : "D0",
+            "lwip.ppp-enabled"                      : true,
+            "lwip.tcp-enabled"                      : true,
+            "target.macros_add"                     : ["MBEDTLS_ENTROPY_HARDWARE_ALT"]
+        },
+        "NUMAKER_IOT_M487": {
+            "target.network-default-interface-type" : "CELLULAR",
+            "target.components_add"                 : ["GENERIC_AT3GPP"],
+            "GENERIC_AT3GPP.provide-default"        : true,
+            "GENERIC_AT3GPP.tx"                     : "D1",
+            "GENERIC_AT3GPP.rx"                     : "D0",
+            "lwip.ppp-enabled"                      : true,
+            "lwip.tcp-enabled"                      : true,
+            "target.macros_add"                     : ["MBEDTLS_ENTROPY_HARDWARE_ALT"]
+        },
+        "NUMAKER_IOT_M487_DEV": {
+            // Inherit NUMAKER_IOT_M487
+            "target.components_add"                 : [
+                                                        "GENERIC_AT3GPP",
+                                                        "BMX055"
+                                                      ]
+        },
+        "NUMAKER_IOT_M467": {
+            "target.network-default-interface-type" : "CELLULAR",
+            "target.components_add"                 : ["GENERIC_AT3GPP"],
+            "GENERIC_AT3GPP.provide-default"        : true,
+            "GENERIC_AT3GPP.tx"                     : "D1",
+            "GENERIC_AT3GPP.rx"                     : "D0",
+            "lwip.ppp-enabled"                      : true,
+            "lwip.tcp-enabled"                      : true
+        },
+        "NUMAKER_IOT_M263A": {
+            "target.network-default-interface-type" : "CELLULAR",
+            "target.components_add"                 : ["GENERIC_AT3GPP"],
+            "GENERIC_AT3GPP.provide-default"        : true,
+            "GENERIC_AT3GPP.tx"                     : "PE_14",
+            "GENERIC_AT3GPP.rx"                     : "PE_15",
+            "lwip.ppp-enabled"                      : true,
+            "lwip.tcp-enabled"                      : true
+        },
+        "NUMAKER_PFM_NUC472": {
+            "target.network-default-interface-type" : "CELLULAR",
+            "target.components_add"                 : ["GENERIC_AT3GPP"],
+            "GENERIC_AT3GPP.provide-default"        : true,
+            "GENERIC_AT3GPP.tx"                     : "D1",
+            "GENERIC_AT3GPP.rx"                     : "D0",
+            "lwip.ppp-enabled"                      : true,
+            "lwip.tcp-enabled"                      : true,
+            "target.macros_add"                     : ["MBEDTLS_ENTROPY_HARDWARE_ALT"]
+        }
+    }
+}

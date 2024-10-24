@@ -1,9 +1,9 @@
-# Example for Azure IoT Plug and Play on Nuvoton's Mbed Enabled boards
+# Example for Azure IoT Plug and Play on Nuvoton's Mbed CE enabled boards
 
-This is an example to show [Azure IoT Plug and Play](https://docs.microsoft.com/en-us/azure/iot-pnp/) on Nuvoton's Mbed Enabled boards.
+This is an example to show [Azure IoT Plug and Play](https://docs.microsoft.com/en-us/azure/iot-pnp/) on Nuvoton's Mbed CE enabled boards.
 It relies on the following modules:
 
--   [Mbed OS](https://github.com/ARMmbed/mbed-os)
+-   [Mbed OS Community Edition](https://github.com/mbed-ce/mbed-os)
 -   [Azure IoT Device SDK port for Mbed OS](https://github.com/ARMmbed/mbed-client-for-azure):
     -   [Azure IoT C SDKs and Libraries](https://github.com/Azure/azure-iot-sdk-c)
     -   [Adapters for Mbed OS](https://github.com/ARMmbed/mbed-client-for-azure/tree/master/mbed/adapters)
@@ -26,30 +26,55 @@ Platform                        |  Connectivity     | Notes
 Nuvoton NUMAKER_PFM_NUC472      | Ethernet          |
 Nuvoton NUMAKER_PFM_M487        | Ethernet          |
 Nuvoton NUMAKER_IOT_M487        | Wi-Fi ESP8266     |
+Nuvoton NUMAKER_IOT_M487_DEV    | Wi-Fi ESP8266     |
+Nuvoton NUMAKER_IOT_M467        | Wi-Fi ESP8266     |
 Nuvoton NUMAKER_IOT_M263A       | Wi-Fi ESP8266     |
+
+**NOTE**: Most targets implement the Azure IoT Plug and Play device model
+[TemperatureController](https://github.com/Azure/iot-plugandplay-models/blob/main/dtmi/com/example/temperaturecontroller-1.json),
+except noted below.
+
+**NOTE**: NUMAKER_IOT_M487_DEV is just NUMAKER_IOT_M487, except it implements
+the Azure IoT Plug and Play device model
+[numaker_iot_m487_dev](https://github.com/Azure/iot-plugandplay-models/blob/main/dtmi/nuvoton/numaker_iot_m487_dev-1.json).
 
 ## Support development tools
 
--   [Arm's Mbed Studio](https://os.mbed.com/docs/mbed-os/v6.3/build-tools/mbed-studio.html)
--   [Arm's Mbed CLI](https://os.mbed.com/docs/mbed-os/v6.3/build-tools/mbed-cli.html)
+Use cmake-based build system.
+Check out [hello world example](https://github.com/mbed-ce/mbed-ce-hello-world) for getting started.
+
+**_NOTE:_** Legacy development tools below are not supported anymore.
+-   [Arm's Mbed Studio](https://os.mbed.com/docs/mbed-os/v6.15/build-tools/mbed-studio.html)
+-   [Arm's Mbed CLI 2](https://os.mbed.com/docs/mbed-os/v6.15/build-tools/mbed-cli-2.html)
+-   [Arm's Mbed CLI 1](https://os.mbed.com/docs/mbed-os/v6.15/tools/developing-mbed-cli.html)
+
+For [VS Code development](https://github.com/mbed-ce/mbed-os/wiki/Project-Setup:-VS-Code)
+or [OpenOCD as upload method](https://github.com/mbed-ce/mbed-os/wiki/Upload-Methods#openocd),
+install below additionally:
+
+-   [NuEclipse](https://github.com/OpenNuvoton/Nuvoton_Tools#numicro-software-development-tools): Nuvoton's fork of Eclipse
+-   Nuvoton forked OpenOCD: Shipped with NuEclipse installation package above.
+    Checking openocd version `openocd --version`, it should fix to `0.10.022`.
 
 ## Developer guide
 
-This section is intended for developers to get started, import the example application, compile with Mbed CLI, and get it running as Azure IoT Plug and Play device.
+This section is intended for developers to get started, import the example application, build, and get it running as Azure IoT Plug and Play device.
 
 ### Hardware requirements
 
--   Nuvoton's Mbed Enabled board
+-   Nuvoton's Mbed CE enabled board
 
 ### Software requirements
 
--   [Arm's Mbed CLI](https://os.mbed.com/docs/mbed-os/v6.3/build-tools/mbed-cli.html)
 -   [Azure account](https://portal.azure.com/)
 -   [Azure IoT Explorer](https://docs.microsoft.com/en-us/azure/iot-pnp/howto-use-iot-explorer)
 
 ### Hardware setup
 
-Connect target board to host through USB.
+-   Switch target board
+    -   NuMaker-IoT-M467's Nu-Link2: TX/RX/VCOM to ON, MSG to non-ON
+-   Connect target board to host through USB
+    -   NuMaker-IoT-M467: Mbed USB drive shows up in File Browser
 
 ### Operations on Azure portal
 
@@ -76,111 +101,110 @@ Take note of the following items.
 
 Follow the [doc](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-create-through-portal#register-a-new-device-in-the-iot-hub) to create a device using symmetric key authentication type.
 
-### Compile with Mbed CLI
+### Build the example
 
-In the following, we take [NuMaker-IoT-M487](https://os.mbed.com/platforms/NUMAKER-IOT-M487/) as example board to show this example.
+In the following, we take [NuMaker-IoT-M467](https://www.nuvoton.com/board/numaker-iot-m467/) as example board to show this example.
 
 1.  Clone the example and navigate into it
     ```sh
-    $ git clone https://github.com/OpenNuvoton/NuMaker-mbed-Azure-IoT-CSDK-PnP-example
-    $ cd NuMaker-mbed-Azure-IoT-CSDK-PnP-example
+    $ git clone https://github.com/mbed-nuvoton/NuMaker-mbed-ce-Azure-IoT-CSDK-PnP-example
+    $ cd NuMaker-mbed-ce-Azure-IoT-CSDK-PnP-example
+    $ git checkout -f master
     ```
 
 1.  Deploy necessary libraries
-    ```sh
-    $ mbed deploy
+    ```
+    $ git submodule update --init
+    ```
+    Or for fast install:
+    ```
+    $ git submodule update --init --filter=blob:none
+    ```
+
+    Deploy further for `mbed-ce-client-for-azure` library:
+    ```
+    $ cd mbed-ce-client-for-azure; \
+    git submodule update --init; \
+    cd ..
+    ```
+    Or for fast install:
+    ```
+    $ cd mbed-ce-client-for-azure; \
+    git submodule update --init --filter=blob:none; \
+    cd ..
     ```
 
 1.  Configure connecting with IoT Hub via DPS or straight. To via DPS, set value of `use_dps` to `true`; otherwise, `null`.
 
-    **mbed_app.json**:
-    ```json
-        "use_dps": {
-            "help": "Enable connecting with IoT Hub via DPS",
-            "options": [null, true],
-            "value": true,
-            "macro_name": "USE_PROV_MODULE_FULL"
-        },
+    **mbed_app.json5**:
+    ```json5
+    "use_dps": {
+        "help": "Enable connecting with IoT Hub via DPS",
+        "options": [null, true],
+        "value": true
+    },
     ```
 
 1.  On connecting with IoT Hub via DPS,
 
+    1.  Configure HSM type. Set `hsm_type` to `HSM_TYPE_SYMM_KEY` to match [symmetric key](https://docs.microsoft.com/en-us/azure/iot-dps/concepts-service#attestation-mechanism) attestation type.
+
+        **configs/aziot_user_config.h**:
+        ```C++
+        #define AZIOT_CONF_APP_HSM_TYPE HSM_TYPE_SYMM_KEY
+        ```
+
     1.  Configure DPS parameters. They should have been noted in [above](#operations-on-azure-portal).
 
-        **mbed_app.json**:
-        ```json
-            "provision_registration_id": {
-                "help": "Registration ID when HSM_TYPE_SYMM_KEY is supported; Ignored for other HSM types",
-                "value": "\"REGISTRATION_ID\""
-            },
-            "provision_symmetric_key": {
-                "help": "Symmetric key when HSM_TYPE_SYMM_KEY is supported; Ignored for other HSM types",
-                "value": "\"SYMMETRIC_KEY\""
-            },
-            "provision_endpoint": {
-                    "help": "Device provisioning service URI",
-            "value": "\"global.azure-devices-provisioning.net\""
-            },
-            "provision_id_scope": {
-                "help": "Device provisioning service ID scope",
-                "value": "\"ID_SCOPE\""
-            },
+        **configs/aziot_user_config.h**:
+        ```C++
+        #define AZIOT_CONF_APP_PROVISION_REGISTRATION_ID "<REGISTRATION_ID>"
+        #define AZIOT_CONF_APP_PROVISION_SYMMETRIC_KEY "<SYMMETRIC_KEY>"
+        #define AZIOT_CONF_APP_PROVISION_ENDPOINT "global.azure-devices-provisioning.net"
+        #define AZIOT_CONF_APP_PROVISION_ID_SCOPE "<ID_SCOPE>"
         ```
 
-    1.  Enable Azure C-SDK provisioning client module and custom HSM.
-
-        **mbed_app.json**:
-        ```
-        "macros": [
-            "USE_PROV_MODULE",
-            "HSM_AUTH_TYPE_CUSTOM"
-        ],
-        ```
+        **NOTE**: For non-symmetric key attestation type, `AZIOT_CONF_APP_PROVISION_SYMMETRIC_KEY`
+        is unnecessary and `AZIOT_CONF_APP_PROVISION_REGISTRATION_ID` is acquired through other means.
 
 1.  On connecting with IoT Hub straight, 
 
     1.  Configure connection string.
 
-        **mbed_app.json**:
-        ```json
-            "iothub_connection_string": {
-                "help": "Device connection string for IoT Hub authentication when DPS is not used",
-                "value": "\"IOTHUB_CONNECTION_STRING\""
-            },
+        **configs/aziot_user_config.h**:
+        ```C++
+        #define AZIOT_CONF_APP_DEVICE_CONNECTION_STRING "<DEVICE_CONNECTION_STRING>"
         ```
-
-        **NOTE**: With Mbed CLI 2, CMake uses semicolon as list separator,
-        and doesn't handle `iothub_connection_string` with semicolon correctly.
-        Use Mbed CLI 1 anyway.
-
-    1.  Disable Azure C-SDK provisioning client module and custom HSM.
-
-        **mbed_app.json**:
-        <pre>
-            "macros": [
-                <del>"USE_PROV_MODULE",</del>
-                <del>"HSM_AUTH_TYPE_CUSTOM"</del>
-            ],
-        </pre>
 
 1.  Configure network interface
     -   Ethernet: Need no further configuration.
-    -   WiFi: Configure WiFi `SSID`/`PASSWORD`.
 
-        **mbed_app.json**:
-        ```json
-            "nsapi.default-wifi-ssid"               : "\"SSID\"",
-            "nsapi.default-wifi-password"           : "\"PASSWORD\"",
+        **mbed_app.json5**:
+        ```json5
+        "target.network-default-interface-type" : "Ethernet",
         ```
 
-1.  Build the example on **NUMAKER_IOT_M487** target and **ARM** toolchain
-    ```sh
-    $ mbed compile -m NUMAKER_IOT_M487 -t ARM
+    -   WiFi: Configure WiFi `SSID`/`PASSWORD`.
+
+        **mbed_app.json5**:
+        ```json5
+        "target.network-default-interface-type" : "WIFI",
+        "nsapi.default-wifi-security"           : "WPA_WPA2",
+        "nsapi.default-wifi-ssid"               : "\"SSID\"",
+        "nsapi.default-wifi-password"           : "\"PASSWORD\"",
+        ```
+
+1.  Compile with cmake/ninja
+    ```
+    $ mkdir build; cd build
+    $ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Develop -DMBED_TARGET=NUMAKER_IOT_M467
+    $ ninja
+    $ cd ..
     ```
 
-1.  Flash by drag-n-drop'ing the built image file below onto **NuMaker-IoT-M487** board
+1.  Flash by drag-n-drop'ing the built image file below onto **NuMaker-IoT-M467** board
 
-    `BUILD/NUMAKER_IOT_M487/ARM/NuMaker-mbed-Azure-IoT-CSDK-PnP-example.bin`
+    `build/NuMaker-mbed-ce-Azure-IoT-CSDK-PnP-example.bin`
 
 ### Monitor the application through host console
 
